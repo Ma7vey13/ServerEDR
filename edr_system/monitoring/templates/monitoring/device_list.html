@@ -1,0 +1,293 @@
+{% extends "monitoring/base.html" %}
+
+{% block content %}
+<style>
+    /* Основной фон страницы */
+    body {
+        background-color: #fcf9e9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Контейнер для контента */
+    .content-container {
+        background-color: #fcf9e9;
+        min-height: calc(100vh - 40px);
+    }
+
+    /* Общий шрифт */
+    h2, table, th, td, button, input, label, a {
+        font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Заголовок */
+    h2 {
+        color: #5d4037;
+        margin-bottom: 20px;
+        font-weight: 600;
+        padding: 0 10px;
+    }
+
+    /* Таблица в гармоничных тонах */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        box-shadow: 0 2px 8px rgba(92, 71, 25, 0.08);
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fefdf6;
+        border: 1px solid #e8dfc8;
+    }
+
+    th, td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid #f0e9d7;
+    }
+
+    th {
+        background-color: #f5f0e1;
+        color: #6b5c43;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    tr:hover {
+        background-color: #faf8f0;
+    }
+
+    /* Статусы в гармоничных тонах */
+    .status-isolated {
+        color: #c44536;
+        font-weight: 600;
+        background-color: #fdf0ed;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .status-active {
+        color: #4a7b9d;
+        font-weight: 600;
+        background-color: #f0f7fd;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    .status-inactive {
+        color: #8a7e6b;
+        font-weight: 600;
+        background-color: #f5f2e9;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    /* Ссылки */
+    a {
+        color: #4a7b9d;
+        text-decoration: none;
+        margin: 0 6px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    a:hover {
+        text-decoration: none;
+        background-color: #f0f7fd;
+        color: #3a6a8d;
+    }
+
+    /* Кнопки в гармоничных тонах */
+    button[type="submit"],
+    button[type="button"] {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        margin-right: 8px;
+    }
+
+    button[type="submit"]:hover,
+    button[type="button"]:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Цвета кнопок по контексту */
+    form[action*="isolate"] button {
+        background-color: #c44536;
+        color: white;
+    }
+    form[action*="isolate"] button:hover {
+        background-color: #a83a2d;
+    }
+
+    form[action*="unisolate"] button {
+        background-color: #4a7b9d;
+        color: white;
+    }
+    form[action*="unisolate"] button:hover {
+        background-color: #3a6a8d;
+    }
+
+    form[action*="delete_device"] button {
+        background-color: #8a7e6b;
+        color: white;
+    }
+    form[action*="delete_device"] button:hover {
+        background-color: #756a5a;
+    }
+
+    /* Кнопки в блоке Policy */
+    [id^="policy-"] button[type="submit"] {
+        background-color: #4a7b9d;
+        color: white;
+    }
+    [id^="policy-"] button[type="submit"]:hover {
+        background-color: #3a6a8d;
+    }
+
+    [id^="policy-"] button[type="button"] {
+        background-color: #f5f0e1;
+        color: #6b5c43;
+        border: 1px solid #e8dfc8;
+    }
+    [id^="policy-"] button[type="button"]:hover {
+        background-color: #e8dfc8;
+    }
+
+    /* Блоки политики */
+    [id^="policy-"] {
+        margin-top: 12px;
+        padding: 16px;
+        border: 1px solid #e8dfc8;
+        border-radius: 8px;
+        background-color: #faf8f0;
+        box-shadow: 0 2px 6px rgba(92, 71, 25, 0.1);
+    }
+
+    [id^="policy-"] label {
+        display: block;
+        margin: 10px 0 6px;
+        font-weight: 500;
+        color: #5d4037;
+    }
+
+    [id^="policy-"] input[type="text"],
+    [id^="policy-"] input[type="number"] {
+        padding: 8px 10px;
+        border: 1px solid #d6c9a5;
+        border-radius: 4px;
+        width: 80px;
+        font-size: 0.95rem;
+        background-color: #fefdf6;
+        color: #5d4037;
+    }
+
+    [id^="policy-"] input[type="checkbox"] {
+        margin-right: 8px;
+        transform: scale(1.1);
+    }
+
+    /* Улучшенные стили для ячеек с временем */
+    td {
+        color: #6b5c43;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        th, td {
+            padding: 12px 14px;
+            font-size: 0.875rem;
+        }
+
+        button[type="submit"],
+        button[type="button"] {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            margin-right: 4px;
+        }
+    }
+</style>
+
+<div class="content-container">
+    <h2>Device Management</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>IP Address</th>
+                <th>Status</th>
+                <th>Last Active</th>
+                <th>Isolated</th>
+                <th>Actions</th>
+                <th>Policy</th>
+                <th>Logs &amp; Activity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td><strong>{{ device.hostname }}</strong></td>
+                <td>{{ device.ip_address|default:"—" }}</td>
+                <td>
+                    {% if device.get_status_display == 'Active' %}
+                        <span class="status-active">{{ device.get_status_display }}</span>
+                    {% else %}
+                        <span class="status-inactive">{{ device.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ device.last_active|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    {% if device.is_isolated %}
+                        <span class="status-isolated">Yes</span>
+                    {% else %}
+                        <span class="status-active">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if device.is_isolated %}
+                        <form method="post" action="{% url 'unisolate_device' device.id %}" style="display:inline;">
+                            {% csrf_token %}<button type="submit">Unisolate</button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{% url 'isolate_device' device.id %}" style="display:inline;">
+                            {% csrf_token %}<button type="submit">Isolate</button>
+                        </form>
+                    {% endif %}
+                    <!-- Кнопка удаления -->
+                    <form method="post" action="{% url 'delete_device' device.hostname %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this device?');">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+                <td>
+                    <a href="#" onclick="document.getElementById('policy-{{ device.id }}').style.display='block'; return false;">Edit</a>
+                    <div id="policy-{{ device.id }}" style="display:none;">
+                        <form method="post" action="{% url 'update_policy' device.id %}">
+                            {% csrf_token %}
+                            <label>DDoS Conn Threshold: <input name="ddos_threshold" value="{{ device.ddos_connection_threshold }}" size="5"></label><br>
+                            <label>Traffic Threshold (MB/s): <input name="traffic_threshold" value="{{ device.ddos_traffic_threshold_mb }}" size="5"></label><br>
+                            <label><input type="checkbox" name="behavioral" {% if device.enable_behavioral_analysis %}checked{% endif %}> Behavioral Analysis</label><br>
+                            <label><input type="checkbox" name="ransomware" {% if device.enable_ransomware_trap %}checked{% endif %}> Ransomware Trap</label><br>
+                            <button type="submit">Save</button>
+                            <button type="button" onclick="this.parentElement.parentElement.style.display='none'">Cancel</button>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <a href="{% url 'incident_logs' device.id %}">Logs</a>
+                    <a href="{% url 'device_activity' device.id %}">Activity</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

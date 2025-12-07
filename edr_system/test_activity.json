@@ -1,0 +1,10 @@
+{
+    "hostname": "test_device",
+    "activity_data": [
+        {
+            "action": "Running",
+            "name": "malicious_process.exe",
+            "pid": 1234
+        }
+    ]
+}

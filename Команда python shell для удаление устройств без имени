@@ -1,0 +1,3 @@
+# В shell: python manage.py shell
+from monitoring.models import Device
+Device.objects.filter(hostname="").delete()
